@@ -1,4 +1,6 @@
-import fs from "fs";
+#!/usr/bin/env bun
+
+import fs, { rmSync } from "fs";
 import path from "path";
 import {
     type CompilationOptions,
@@ -52,12 +54,16 @@ const dts = (options?: Options): BunPlugin => {
     };
 };
 
+// Remove old files
+rmSync("dist", { recursive: true, force: true });
+
+// Bundle JS files
 await Bun.build({
     entrypoints: ["src/index.ts"],
     outdir: "dist",
     format: "esm",
     target: "node",
-    sourcemap: "inline",
+    sourcemap: "linked",
     minify: true,
     external: ["node:*"],
     banner: `/* ${await Bun.file("LICENSE").text()} */`,
@@ -69,5 +75,3 @@ await Bun.build({
         }),
     ],
 });
-
-fs.copyFileSync("LICENSE", "dist/LICENSE");
