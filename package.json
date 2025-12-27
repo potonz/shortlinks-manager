@@ -10,7 +10,7 @@
     "url": "https://github.com/potonz/shortlinks-manage-cf-d1.git",
     "type": "git"
   },
-  "version": "0.0.1",
+  "version": "0.0.2",
   "type": "module",
   "license": "MIT",
   "scripts": {
@@ -28,6 +28,7 @@
     "eslint-plugin-import-x": "^4.16.1",
     "globals": "^16.5.0",
     "miniflare": "^4.20251217.0",
+    "nanospinner": "^1.2.2",
     "typescript-eslint": "^8.50.1",
     "wrangler": "^4.54.0"
   },
@@ -44,7 +45,9 @@
       "types": "./dist/index.d.ts"
     }
   },
-  "files": ["dist"],
+  "files": [
+    "dist"
+  ],
   "publishConfig": {
     "access": "public"
   }
