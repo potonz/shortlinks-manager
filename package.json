@@ -5,6 +5,11 @@
     "name": "Thomas Nguyen",
     "email": "tom@tomng.dev"
   },
+  "homepage": "https://github.com/potonz/shortlinks-manage-cf-d1",
+  "repository": {
+    "url": "https://github.com/potonz/shortlinks-manage-cf-d1.git",
+    "type": "git"
+  },
   "version": "0.0.1",
   "type": "module",
   "license": "MIT",

@@ -20,7 +20,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Bundle
-        run: bun run bundle
+        run: bun run bundle && mv dist/package.json package.json
 
       - name: Publish
         run: bun publish

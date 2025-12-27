@@ -75,3 +75,11 @@ await Bun.build({
         }),
     ],
 });
+
+// Remove dependencies from package.json
+const packageJson = await Bun.file("package.json").json();
+delete packageJson.devDependencies;
+delete packageJson.peerDependencies;
+delete packageJson.scripts;
+// Write package.json
+await Bun.write("dist/package.json", JSON.stringify(packageJson, null, 2));
