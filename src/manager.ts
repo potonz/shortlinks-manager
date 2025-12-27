@@ -12,6 +12,8 @@ export class LinksManager {
     private stmt_getLink: D1PreparedStatement | null = null;
     private stmt_getShortIdsExist: D1PreparedStatement | null = null;
     private stmt_createShortLinkMap: D1PreparedStatement | null = null;
+    private stmt_updateShortLinkLastAccessed: D1PreparedStatement | null = null;
+    private stmt_cleanUnusedLinks: D1PreparedStatement | null = null;
 
     public constructor(db: D1Database, shortIdLength: number, onShortIdLengthChange: OnShortIdLengthChangedCallback) {
         this.db = db;
@@ -72,12 +74,9 @@ export class LinksManager {
             this.stmt_createShortLinkMap = this.db.prepare("INSERT INTO sl_links_map (short_id, target_url) VALUES (?, ?)");
         }
 
-        const result = await this.stmt_createShortLinkMap.bind(shortId, targetUrl).run();
-        if (result.success) {
-            return shortId;
-        }
+        await this.stmt_createShortLinkMap.bind(shortId, targetUrl).run();
 
-        return null;
+        return shortId;
     }
 
     private async getShortIdsExist(shortIds: string[]): Promise<string[]> {
@@ -94,5 +93,33 @@ export class LinksManager {
         }
 
         return result.results.map(r => r.short_id);
+    }
+
+    /**
+     * Update last accessed time to current timestamp
+     * @param shortId
+     */
+    public async updateShortLinkLastAccessTime(shortId: string): Promise<void> {
+        if (!this.initialised) await this.init();
+
+        if (!this.stmt_updateShortLinkLastAccessed) {
+            this.stmt_updateShortLinkLastAccessed = this.db.prepare("UPDATE sl_links_map SET last_accessed_at = CURRENT_TIMESTAMP WHERE short_id = ?");
+        }
+
+        await this.stmt_updateShortLinkLastAccessed.bind(shortId).run();
+    }
+
+    /**
+     * Remove unused links that are older than the given maxAge
+     * @param maxAge number of days the record should be kept
+     */
+    public async cleanUnusedLinks(maxAge: number): Promise<void> {
+        if (!this.initialised) await this.init();
+
+        if (!this.stmt_cleanUnusedLinks) {
+            this.stmt_cleanUnusedLinks = this.db.prepare("DELETE FROM sl_links_map WHERE last_accessed_at < datetime(CURRENT_TIMESTAMP, ?)");
+        }
+
+        await this.stmt_cleanUnusedLinks.bind(`-${maxAge} days`).run();
     }
 }
