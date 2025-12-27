@@ -1,3 +1,9 @@
+## [0.0.4] - 2025-12-27
+
+### 🐛 Bug Fixes
+
+- *(actions)* Fixed publish workflow missing id-token permission
+
 ## [0.0.2] - 2025-12-27
 
 ### ⛰️  Features
