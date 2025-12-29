@@ -6,9 +6,8 @@
   },
   "type": "module",
   "license": "MIT",
-  "version": "0.1.0",
   "scripts": {
-    "bundle": "bun run ./scripts/build.ts",
+    "build": "bun run ./scripts/build.ts",
     "release": "bun run ./scripts/release.js",
     "publish": "bun run ./scripts/publish.ts",
     "lint": "eslint .",
