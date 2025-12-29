@@ -1,1 +1,1 @@
-export { ShortLinksManager, type IShortLinksManagerBackend } from "./ShortLinksManager.ts";
+export * from "./manager";
