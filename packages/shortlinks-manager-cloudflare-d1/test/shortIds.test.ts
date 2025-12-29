@@ -1,11 +1,12 @@
 import { test, expect, beforeAll, afterAll } from "bun:test";
 import { Miniflare } from "miniflare";
 import { lightFormat } from "date-fns";
-import { LinksManager } from "../src";
-import { globSync } from "fs";
-import { ALLOWED_CHARS } from "../src/utils";
+import { createD1Backend } from "src";
+import type { IShortLinksManagerBackend } from "@potonz/shortlinks-manager";
 
 let mf: Miniflare;
+let db: D1Database;
+let backend: IShortLinksManagerBackend;
 
 beforeAll(async () => {
     mf = new Miniflare({
@@ -24,63 +25,22 @@ export default {
 
     await mf.ready;
 
-    const migrationFiles = globSync("./migrations/*.sql");
-    const db = await mf.getD1Database("DB");
-
-    for (const file of migrationFiles) {
-        const sql = await Bun.file(file).text();
-        await db.prepare(sql).run();
-    }
+    db = await mf.getD1Database("DB");
+    backend = createD1Backend(db);
+    await backend.init?.();
 });
 
 afterAll(async () => {
     await mf.dispose();
 });
 
-test("create a short link (empty db)", async () => {
-    const db = await mf.getD1Database("DB");
+test("create a short link", async () => {
+    const expected = ["aB0", "https://poto.nz"] as const;
 
-    let idLength = 3;
-    const manager = new LinksManager(db, idLength, (l) => {
-        idLength = l;
-    });
-
-    const shortId = await manager.createShortLink("https://poto.nz");
-
-    expect(shortId).toBeString();
-    expect(shortId).toHaveLength(idLength);
-    expect(shortId).toMatch(/^[0-9a-zA-Z]+$/);
-});
-
-test("create a short link (ID length bump)", async () => {
-    const db = await mf.getD1Database("DB");
-
-    const queries = [];
-    const stmt = db.prepare("INSERT INTO sl_links_map (short_id, target_url) VALUES (?, ?)");
-
-    for (let i = 0; i < ALLOWED_CHARS.length; i++) {
-        queries.push(
-            stmt.bind(ALLOWED_CHARS[i], "https://poto.nz"),
-        );
-    }
-    await db.batch(queries);
-
-    let idLength = 1;
-    const manager = new LinksManager(db, idLength, (l) => {
-        idLength = l;
-    });
-
-    const shortId = await manager.createShortLink("https://poto.nz");
-
-    expect(idLength).toBeGreaterThan(1);
-    expect(shortId).toBeString();
-    expect(shortId).toHaveLength(idLength);
-    expect(shortId).toMatch(/^[0-9a-zA-Z]+$/);
+    expect(backend.createShortLink(expected[0], expected[1])).resolves.toBeUndefined();
 });
 
 test("get url by short id", async () => {
-    const db = await mf.getD1Database("DB");
-
     const shortId = "abCD90";
     const expected = "https://poto.nz";
 
@@ -88,15 +48,12 @@ test("get url by short id", async () => {
         .bind(shortId, expected)
         .run();
 
-    const manager = new LinksManager(db, 3, () => undefined);
-    const url = await manager.getTargetUrl(shortId);
+    const url = backend.getTargetUrl(shortId);
 
-    expect(url).toStrictEqual(expected);
+    expect(url).resolves.toStrictEqual(expected);
 });
 
 test("get unused short links", async () => {
-    const db = await mf.getD1Database("DB");
-
     const expectedRemoved = "abc";
     const expectedExist = "def";
 
@@ -107,11 +64,14 @@ test("get unused short links", async () => {
         )
         .run();
 
-    const manager = new LinksManager(db, 3, () => undefined);
-    await manager.cleanUnusedLinks(1);
+    await backend.cleanUnusedLinks(1);
 
-    const removedUrl = await manager.getTargetUrl(expectedRemoved);
-    expect(removedUrl).toBeNull();
-    const existUrl = await manager.getTargetUrl(expectedExist);
-    expect(existUrl).not.toBeNull();
+    const removedUrl = backend.getTargetUrl(expectedRemoved);
+    expect(removedUrl).resolves.toBeNull();
+    const existUrl = backend.getTargetUrl(expectedExist);
+    expect(existUrl).resolves.not.toBeNull();
+});
+
+test("get non-existing short id", async () => {
+    expect(backend.getTargetUrl("does-not-exist")).resolves.toBeNull();
 });

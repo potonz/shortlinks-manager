@@ -1,4 +1,4 @@
 import "./worker-configuration.d.ts";
-export * from "./manager";
+export * from "./backend";
 
-export default undefined;
+export default {};
