@@ -1,12 +1,11 @@
 import { test, expect, beforeAll, afterAll } from "bun:test";
 import { Miniflare } from "miniflare";
 import { lightFormat } from "date-fns";
-import { createD1Backend } from "src";
-import type { IShortLinksManagerBackend } from "@potonz/shortlinks-manager";
+import { createD1Backend, type IShortLinksManagerD1Backend } from "src";
 
 let mf: Miniflare;
 let db: D1Database;
-let backend: IShortLinksManagerBackend;
+let backend: IShortLinksManagerD1Backend;
 
 beforeAll(async () => {
     mf = new Miniflare({
@@ -28,6 +27,7 @@ export default {
     db = await mf.getD1Database("DB");
     backend = createD1Backend(db);
     await backend.init?.();
+    await backend.setupTables();
 });
 
 afterAll(async () => {

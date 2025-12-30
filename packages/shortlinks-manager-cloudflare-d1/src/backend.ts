@@ -1,10 +1,10 @@
 import { type IShortLinksManagerBackend } from "@potonz/shortlinks-manager";
 
-interface ID1Backend extends IShortLinksManagerBackend {
+export interface IShortLinksManagerD1Backend extends IShortLinksManagerBackend {
     setupTables: () => Promise<void>;
 }
 
-export function createD1Backend(db: D1Database): ID1Backend {
+export function createD1Backend(db: D1Database): IShortLinksManagerD1Backend {
     let stmt_getLink: D1PreparedStatement | null = null;
     let stmt_getShortIdsExist: D1PreparedStatement | null = null;
     let stmt_createShortLinkMap: D1PreparedStatement | null = null;
