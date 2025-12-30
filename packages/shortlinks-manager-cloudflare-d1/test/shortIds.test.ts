@@ -1,6 +1,6 @@
-import { test, expect, beforeAll, afterAll } from "bun:test";
-import { Miniflare } from "miniflare";
+import { afterAll, beforeAll, expect, test } from "bun:test";
 import { lightFormat } from "date-fns";
+import { Miniflare } from "miniflare";
 import { createD1Backend, type IShortLinksManagerD1Backend } from "src";
 
 let mf: Miniflare;

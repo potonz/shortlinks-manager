@@ -25,7 +25,7 @@
     "@types/bun": "latest",
     "dts-bundle-generator": "^9.5.1",
     "eslint": "^9.39.2",
-    "eslint-plugin-import-x": "^4.16.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
     "globals": "^16.5.0",
     "nanospinner": "^1.2.2",
     "typescript": "^5.9.3",

@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
-import fs from "fs";
-import { argv } from "process";
 import { execSync } from "child_process";
+import fs from "fs";
 import { createSpinner } from "nanospinner";
+import { argv } from "process";
 import { createInterface } from "readline";
 import util from "util";
 

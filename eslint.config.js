@@ -1,14 +1,13 @@
-//  @ts-check
-
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
 import stylistic from "@stylistic/eslint-plugin";
-import { importX } from "eslint-plugin-import-x";
 import { defineConfig, globalIgnores } from "eslint/config";
+import simpleImportSort from "eslint-plugin-simple-import-sort";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 export default defineConfig([
     globalIgnores(["**/dist/**/*"], "Ignores dist files"),
+    globalIgnores(["packages/*/src/worker-configuration.d.ts"]),
     {
         files: ["**/*.{js,mjs,cjs,ts}"],
         languageOptions: {
@@ -33,9 +32,17 @@ export default defineConfig([
             ],
         },
     },
-    importX.flatConfigs.typescript,
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
+    {
+        plugins: {
+            "simple-import-sort": simpleImportSort,
+        },
+        rules: {
+            "simple-import-sort/imports": "error",
+            "simple-import-sort/exports": "error",
+        },
+    },
     stylistic.configs.customize({
         indent: 4,
         semi: true,

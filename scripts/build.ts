@@ -1,7 +1,7 @@
+import type { BunPlugin } from "bun";
+import { type CompilationOptions, type EntryPointConfig, generateDtsBundle } from "dts-bundle-generator";
 import fs, { rmSync } from "fs";
 import path from "path";
-import { type CompilationOptions, type EntryPointConfig, generateDtsBundle } from "dts-bundle-generator";
-import type { BunPlugin } from "bun";
 
 type Options = Omit<EntryPointConfig, "filePath"> & {
     compilationOptions?: CompilationOptions;
