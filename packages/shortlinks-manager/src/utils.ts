@@ -1,8 +1,4 @@
 export const ALLOWED_CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-const CHAR2INDEX_MAP: Record<string, number> = {};
-for (let i = 0; i < ALLOWED_CHARS.length; i++) {
-    CHAR2INDEX_MAP[ALLOWED_CHARS[i]!] = i;
-}
 
 export function generateRandomShortId(length = 4) {
     let result = "";
