@@ -1,11 +1,37 @@
 import { generateUniqueShortIds } from "./utils";
 
 export interface IShortLinksManagerBackend {
+    /**
+     * Initialise any logic before the manager can do its thing. E.g. setting up tables.
+     * Run once when {@link createManager} is called
+     */
     init?: () => unknown;
+    /**
+     * Get target URL for the given short ID
+     * @param {string} shortId
+     * @returns the short ID or null if not found
+     */
     getTargetUrl: (shortId: string) => string | null | Promise<string | null>;
+    /**
+     * Create a short link map with the given short ID and target URL
+     * @param {string} shortId
+     * @param {string} targetUrl
+     */
     createShortLink: (shortId: string, targetUrl: string) => void | Promise<void>;
+    /**
+     * Check the provided list of short IDs and return the ones that already exist.
+     * @param {string[]} shortIds
+     */
     checkShortIdsExist: (shortIds: string[]) => string[] | Promise<string[]>;
+    /**
+     * Update last accessed time to current timestamp
+     * @param shortId
+     */
     updateShortLinkLastAccessTime(shortId: string): void | Promise<void>;
+    /**
+     * Remove unused links that are older than the given maxAge
+     * @param maxAge number of days the record should be kept
+     */
     cleanUnusedLinks(maxAge: number): void | Promise<void>;
 }
 

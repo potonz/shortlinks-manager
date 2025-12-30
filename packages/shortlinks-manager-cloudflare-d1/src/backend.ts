@@ -54,10 +54,6 @@ PRAGMA optimize;
             return result.results.map(r => r.short_id);
         },
 
-        /**
-         * Update last accessed time to current timestamp
-         * @param shortId
-         */
         async updateShortLinkLastAccessTime(shortId: string): Promise<void> {
             if (!stmt_updateShortLinkLastAccessed) {
                 stmt_updateShortLinkLastAccessed = db.prepare("UPDATE sl_links_map SET last_accessed_at = CURRENT_TIMESTAMP WHERE short_id = ?");
@@ -66,10 +62,6 @@ PRAGMA optimize;
             await stmt_updateShortLinkLastAccessed.bind(shortId).run();
         },
 
-        /**
-         * Remove unused links that are older than the given maxAge
-         * @param maxAge number of days the record should be kept
-         */
         async cleanUnusedLinks(maxAge: number): Promise<void> {
             if (!stmt_cleanUnusedLinks) {
                 stmt_cleanUnusedLinks = db.prepare("DELETE FROM sl_links_map WHERE last_accessed_at < datetime(CURRENT_TIMESTAMP, ?)");
