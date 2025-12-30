@@ -1,6 +1,10 @@
 import { type IShortLinksManagerBackend } from "@potonz/shortlinks-manager";
 
-export function createD1Backend(db: D1Database): IShortLinksManagerBackend {
+interface ID1Backend extends IShortLinksManagerBackend {
+    setupTables: () => Promise<void>;
+}
+
+export function createD1Backend(db: D1Database): ID1Backend {
     let stmt_getLink: D1PreparedStatement | null = null;
     let stmt_getShortIdsExist: D1PreparedStatement | null = null;
     let stmt_createShortLinkMap: D1PreparedStatement | null = null;
@@ -8,7 +12,7 @@ export function createD1Backend(db: D1Database): IShortLinksManagerBackend {
     let stmt_cleanUnusedLinks: D1PreparedStatement | null = null;
 
     return {
-        async init() {
+        async setupTables() {
             await db.prepare(`
 CREATE TABLE IF NOT EXISTS sl_links_map (
     short_id VARCHAR(255) NOT NULL PRIMARY KEY,
