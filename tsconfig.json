@@ -25,7 +25,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false
   },
-  "exclude": [
-    "dist"
-  ]
+  // Only include root ts files, leave packages to handle their own inclusions
+  "include": ["scripts"]
 }
