@@ -1,3 +1,31 @@
+## [0.1.1] - 2025-12-31
+
+### ⛰️  Features
+
+- *(shortlinks-manager-cloudflare-d1)* Replaced init with a new function
+
+### 🐛 Bug Fixes
+
+- Fixed tsconfig for root
+
+### 🚜 Refactor
+
+- [**breaking**] Rewrite to monorepo and separate logic
+- Cleanup and updated publish action
+- Renamed `bundle` to `build`
+
+### 📚 Documentation
+
+- *(shortlinks-manager)* Added comments for backend functions
+
+### 🧪 Testing
+
+- *(shortlinks-manager)* Added tests for the manager
+
+### ⚙️ Miscellaneous Tasks
+
+- Sort imports & exports
+
 ## [0.0.4] - 2025-12-27
 
 ### 🐛 Bug Fixes

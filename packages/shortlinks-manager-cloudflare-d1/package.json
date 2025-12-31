@@ -10,7 +10,7 @@
     "url": "git+https://github.com/potonz/shortlinks-manager.git",
     "type": "git"
   },
-  "version": "0.1.0",
+  "version": "0.1.1",
   "type": "module",
   "license": "MIT",
   "scripts": {
