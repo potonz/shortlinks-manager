@@ -8,7 +8,8 @@
   "homepage": "https://github.com/potonz/shortlinks-manager",
   "repository": {
     "url": "git+https://github.com/potonz/shortlinks-manager.git",
-    "type": "git"
+    "type": "git",
+    "directory": "packages/shortlinks-manager"
   },
   "version": "0.1.1",
   "type": "module",
