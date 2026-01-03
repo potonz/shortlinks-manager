@@ -46,6 +46,23 @@ interface IManagerProps {
     caches?: ICache[];
     shortIdLength: number;
     onShortIdLengthUpdated: (newLength: number) => unknown;
+    /**
+     * A special function to queue the {@link promise}
+     * Useful when running in Cloudflare Worker to
+     * run the promise after the responding to the client.
+     * This function is used where, for example, updating all caches if a target URL is found.
+     * @param promise
+     */
+    waitUntil?: (promise: Promise<unknown>) => void;
+    options?: {
+        /**
+         * Whether to update the backend with last access time
+         * on {@link IShortLinksManager#getTargetUrl()} call.
+         * Set to `false` if you want to manually manage this.
+         * Defaults to `true`
+         */
+        shouldUpdateLastAccessOnGet?: boolean;
+    };
 }
 
 export interface IShortLinksManager {
@@ -81,7 +98,7 @@ export interface IShortLinksManager {
     cleanUnusedLinks(maxAge: number): Promise<void>;
 }
 
-export async function createManager({ backend, caches = [], shortIdLength, onShortIdLengthUpdated }: IManagerProps): Promise<IShortLinksManager> {
+export async function createManager({ backend, caches = [], shortIdLength, onShortIdLengthUpdated, waitUntil, options }: IManagerProps): Promise<IShortLinksManager> {
     await backend.init?.();
 
     return {
@@ -97,7 +114,14 @@ export async function createManager({ backend, caches = [], shortIdLength, onSho
 
                 if (!uniqueShortId) {
                     ++shortIdLength;
-                    await onShortIdLengthUpdated(shortIdLength);
+
+                    const updateRes = onShortIdLengthUpdated(shortIdLength);
+                    if (waitUntil && updateRes instanceof Promise) {
+                        waitUntil(updateRes);
+                    }
+                    else {
+                        await updateRes;
+                    }
                 }
                 else {
                     shortId = uniqueShortId;
@@ -118,10 +142,13 @@ export async function createManager({ backend, caches = [], shortIdLength, onSho
             let targetUrl: string | null = null;
 
             for (const cache of caches) {
-                await cache.init?.();
-                if (!targetUrl) {
-                    targetUrl = await cache.get(shortId);
+                if (!cache.initialised) {
+                    await cache.init?.();
+                    cache.initialised = true;
                 }
+
+                targetUrl = await cache.get(shortId);
+                if (targetUrl) break;
             }
 
             if (!targetUrl) {
@@ -129,10 +156,31 @@ export async function createManager({ backend, caches = [], shortIdLength, onSho
             }
 
             if (targetUrl) {
-                await backend.updateShortLinkLastAccessTime(shortId);
+                if (options?.shouldUpdateLastAccessOnGet ?? true) {
+                    const updateRes = backend.updateShortLinkLastAccessTime(shortId);
+                    if (waitUntil && updateRes instanceof Promise) {
+                        waitUntil(updateRes);
+                    }
+                    else {
+                        await updateRes;
+                    }
+                }
 
                 for (const cache of caches) {
-                    await cache.set(shortId, targetUrl);
+                    const updateRes = (async function () {
+                        if (!cache.initialised) {
+                            await cache.init?.();
+                            cache.initialised = true;
+                        }
+                        await cache.set(shortId, targetUrl);
+                    })();
+
+                    if (waitUntil) {
+                        waitUntil(updateRes);
+                    }
+                    else {
+                        await updateRes;
+                    }
                 }
             }
 

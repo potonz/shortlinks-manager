@@ -1,4 +1,5 @@
 export interface ICache {
+    initialised?: boolean;
     init?: () => unknown | Promise<unknown>;
     /**
      * Get the target URL using the provided shortId
