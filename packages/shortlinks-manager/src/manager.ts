@@ -47,10 +47,14 @@ interface IManagerProps {
     shortIdLength: number;
     onShortIdLengthUpdated: (newLength: number) => unknown;
     /**
-     * A special function to queue the {@link promise}
+     * A special function to queue the {@link promise}.
+     *
      * Useful when running in Cloudflare Worker to
      * run the promise after the responding to the client.
-     * This function is used where, for example, updating all caches if a target URL is found.
+     *
+     * This function is used where, for example, updating all caches
+     * if a target URL is found in the backend. We want to return
+     * the URL right away but queue writing to cache after responding to the client.
      * @param promise
      */
     waitUntil?: (promise: Promise<unknown>) => void;
