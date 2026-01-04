@@ -27,8 +27,9 @@ export interface IShortLinksManagerBackend {
     /**
      * Update last accessed time to current timestamp
      * @param shortId
+     * @param time Unix timestamp or a Date object
      */
-    updateShortLinkLastAccessTime(shortId: string): void | Promise<void>;
+    updateShortLinkLastAccessTime(shortId: string, time?: number | Date): void | Promise<void>;
     /**
      * Remove unused links that are older than the given maxAge
      * @param maxAge number of days the record should be kept
@@ -92,7 +93,7 @@ export interface IShortLinksManager {
      * @param time last accessed time. Defaults to current time
      * @throws Error if backend failed
      */
-    updateShortLinkLastAccessTime(shortId: string, time: Date): Promise<void>;
+    updateShortLinkLastAccessTime(shortId: string, time?: number | Date): Promise<void>;
 
     /**
      * Clean up unused links that are older than the given maxAge
@@ -221,8 +222,8 @@ export async function createManager({ backend, caches = [], shortIdLength, onSho
             return targetUrl;
         },
 
-        async updateShortLinkLastAccessTime(shortId) {
-            return await backend.updateShortLinkLastAccessTime(shortId);
+        async updateShortLinkLastAccessTime(shortId, time) {
+            return await backend.updateShortLinkLastAccessTime(shortId, time);
         },
 
         async cleanUnusedLinks(maxAge: number) {

@@ -1,5 +1,7 @@
 import { type IShortLinksManagerBackend } from "@potonz/shortlinks-manager";
 
+import { formatDbDateTime } from "./utils";
+
 export interface IShortLinksManagerD1Backend extends IShortLinksManagerBackend {
     setupTables: () => Promise<void>;
 }
@@ -58,12 +60,17 @@ PRAGMA optimize;
             return result.results.map(r => r.short_id);
         },
 
-        async updateShortLinkLastAccessTime(shortId: string): Promise<void> {
+        async updateShortLinkLastAccessTime(shortId: string, time: number | Date = new Date()): Promise<void> {
             if (!stmt_updateShortLinkLastAccessed) {
-                stmt_updateShortLinkLastAccessed = db.prepare("UPDATE sl_links_map SET last_accessed_at = CURRENT_TIMESTAMP WHERE short_id = ?");
+                stmt_updateShortLinkLastAccessed = db.prepare("UPDATE sl_links_map SET last_accessed_at = ? WHERE short_id = ?");
             }
 
-            await stmt_updateShortLinkLastAccessed.bind(shortId).run();
+            let _time = time;
+            if (typeof _time === "number") {
+                _time = new Date(_time);
+            }
+
+            await stmt_updateShortLinkLastAccessed.bind(formatDbDateTime(_time), shortId).run();
         },
 
         async cleanUnusedLinks(maxAge: number): Promise<void> {
